@@ -80,13 +80,13 @@ function twm_test()
 				var_dump($tweet);
 				$tweet_text = make_clickable($tweet['text']);
 				$post_author = $settings['author_id'];
-				$post_date = strtotime($tweet['created_at']);
+				$post_date_gmt = strtotime($tweet['created_at']);
 				$post_title = "Tweet van {$tweet['from_user']}";
 				$post_content = "<em><a href='http://twitter.com/{$tweet['from_user']}/status/{$tweet['id_str']}'>{$tweet['from_user']}</a>:</em> {$tweet_text}";
 	//			$post_date = $post_date + 3600; // Uurtje extra, er gaat iets mis met de tijdzone ...
-				$post_date = date('Y-m-d H:i:s', $post_date);
+				$post_date_gmt = date('Y-m-d H:i:s', $post_date_gmt);
 				$post_status = 'publish';
-				$postdata = compact('post_author', 'post_date', 'post_content', 'post_title', 'post_status');
+				$postdata = compact('post_author', 'post_date_gmt', 'post_content', 'post_title', 'post_status');
 				$cat = get_term_by('name', $settings['category'], 'category');
 				$postdata['post_category'] = array($cat->term_id);
 				print_r($postdata);
