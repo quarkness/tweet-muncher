@@ -3,7 +3,7 @@
  * Plugin Name: Tweet Muncher
  * Plugin URI: https://github.com/quarkness/tweet-muncher
  * Description: Imports certain tweets as posts
- * Version: 0.3
+ * Version: 0.4
  * Author: Ivo van Doesburg
  * Author URI: http://voorgevorderden.com/
  *
@@ -107,7 +107,9 @@ function twm_import_posts($output = false)
 				$post_content = "<em><a href='http://twitter.com/{$tweet['from_user']}/status/{$tweet['id_str']}'>{$tweet['from_user']}</a>:</em> {$tweet_text}";
 				$post_date_gmt = date('Y-m-d H:i:s', $post_date_gmt);
 				$post_status = 'publish';
-				$postdata = compact('post_author', 'post_date_gmt', 'post_content', 'post_title', 'post_status');
+				preg_match_all('/(^|\s)#(\w+)/', $tweet['text'], $matches);
+				$tags_input = join(', ', $matches[2]);
+				$postdata = compact('post_author', 'post_date_gmt', 'post_content', 'post_title', 'post_status', 'tags_input');
 				$cat = get_term_by('name', $settings['category'], 'category');
 				$postdata['post_category'] = array($cat->term_id);
 				
