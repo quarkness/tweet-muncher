@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Tweet Muncher
- * Plugin URI: http://voorgevorderden.com/
+ * Plugin URI: https://github.com/quarkness/tweet-muncher
  * Description: Imports certain tweets as posts
  * Version: 0.1
  * Author: Ivo van Doesburg
@@ -59,8 +59,9 @@ function twm_test()
 	$since_id = get_option('twm_since_id');
 	$base = 'http://search.twitter.com/search.json?';
 	$url = $base . http_build_query(Array('q'=>$settings['search'], 'since_id'=>$since_id));
-	$response = twm_get_json_api($url);
 	echo "<pre>";
+	echo "<p>Querying {$url}</p>";
+	$response = twm_get_json_api($url);
 	if($response['status'] != 'error')
 	{
 		if(count($response['results']) > 0)
@@ -69,10 +70,11 @@ function twm_test()
 			foreach($response['results'] as $tweet)
 			{
 				var_dump($tweet);
+				$tweet_text = make_clickable($tweet['text']);
 				$post_author = $settings['author_id'];
 				$post_date = strtotime($tweet['created_at']);
 				$post_title = "Tweet van {$tweet['from_user']}";
-				$post_content = "<em><a href='http://twitter.com/{$tweet['from_user']}/status/{$tweet['id']}'>{$tweet['from_user']}</a>:</em> {$tweet['text']}";
+				$post_content = "<em><a href='http://twitter.com/{$tweet['from_user']}/status/{$tweet['id']}'>{$tweet['from_user']}</a>:</em> {$tweet_text}";
 	//			$post_date = $post_date + 3600; // Uurtje extra, er gaat iets mis met de tijdzone ...
 				$post_date = date('Y-m-d H:i:s', $post_date);
 				$post_status = 'publish';
@@ -86,7 +88,7 @@ function twm_test()
 		}
 		else
 		{
-			echo "No tweets aftet tweet {$tweet['id']}";
+			echo "No tweets after tweet {$since_id}";
 		}
 	}
 	else
