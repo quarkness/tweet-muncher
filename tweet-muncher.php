@@ -32,18 +32,19 @@ function twm_admin_page()
 	$settings = get_option('twm_settings');
 
 	if ($_POST) {
-		$settings = Array(
-			'category' => $_POST['twm']['category'],
-			'search' => $_POST['twm']['search'],
-		);
+		$settings['category'] = $_POST['twm']['category'];
+		$settings['search'] = $_POST['twm']['search'];
 		update_option('twm_settings', $settings);
+		$cat = get_term_by('name', $settings['category'], 'category');
+		if(false === $cat)		
+			wp_create_category( $_POST['twm']['category'] );
 		$message = '<div class="updated"><p><strong>Okido.</strong></p></div>';	
 	}
 
 	echo '<div class="wrap">';
 	echo '<h2>Tweet Muncher settings</h2>';
 	echo $message;
-	echo '<form method="post" action="options-general.php?page=nmt-notifier.php">';
+	echo '<form method="post" action="options-general.php?page=tweet-muncher-admin">';
 	echo "<p>Stel dit even in, wil je.</p>";
 	echo '<p>category: <input type="text" name="twm[category]" size="100" value="' . $settings['category'] . '" />';
 	echo '<p>search: <input type="text" name="twm[search]" size="100" value="' . $settings['search'] . '" />';
@@ -60,23 +61,37 @@ function twm_test()
 	$url = $base . http_build_query(Array('q'=>$settings['search'], 'since_id'=>$since_id));
 	$response = twm_get_json_api($url);
 	echo "<pre>";
-	print_r($response);
 	if($response['status'] != 'error')
 	{
-//		update_option('twm_since_id', $response['results'][0]['id']);
-		foreach($response['results'] as $tweet)
+		if(count($response['results']) > 0)
 		{
-			$post_author = $settings['author_id'];
-			$post_date = strtotime($tweet['created_at']);
-//			$post_date = $post_date + 3600; // Uurtje extra, er gaat iets mis met de tijdzone ...
-			$post_date = date('Y-m-d H:i:s', $post_date);
-			
-			$postdata = compact('post_author', 'post_date', 'post_content', 'post_title', 'post_status');
-			$cat = get_term_by('name', $settings['category'], 'category');
-			$postdata['post_category'] = array($cat->term_id);
-			$post_id = wp_insert_post($postdata);
-			add_post_meta( $post_id, 'twm_tweet', $tweet, true );
+			update_option('twm_since_id', $response['results'][0]['id']);
+			foreach($response['results'] as $tweet)
+			{
+				var_dump($tweet);
+				$post_author = $settings['author_id'];
+				$post_date = strtotime($tweet['created_at']);
+				$post_title = "Tweet van {$tweet['from_user']}";
+				$post_content = "<em><a href='http://twitter.com/{$tweet['from_user']}/status/{$tweet['id']}'>{$tweet['from_user']}</a>:</em> {$tweet['text']}";
+	//			$post_date = $post_date + 3600; // Uurtje extra, er gaat iets mis met de tijdzone ...
+				$post_date = date('Y-m-d H:i:s', $post_date);
+				$post_status = 'publish';
+				$postdata = compact('post_author', 'post_date', 'post_content', 'post_title', 'post_status');
+				$cat = get_term_by('name', $settings['category'], 'category');
+				$postdata['post_category'] = array($cat->term_id);
+				print_r($postdata);
+				$post_id = wp_insert_post($postdata);
+				add_post_meta( $post_id, 'twm_tweet', $tweet, true );
+			}
 		}
+		else
+		{
+			echo "No tweets aftet tweet {$tweet['id']}";
+		}
+	}
+	else
+	{
+		echo "Oops!";
 	}
 }
 
