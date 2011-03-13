@@ -36,9 +36,12 @@ function twm_admin_page()
 		$settings['search'] = $_POST['twm']['search'];
 		update_option('twm_settings', $settings);
 		$cat = get_term_by('name', $settings['category'], 'category');
-		if(false === $cat)		
-			wp_create_category( $_POST['twm']['category'] );
-		$message = '<div class="updated"><p><strong>Okido.</strong></p></div>';	
+		if(false === $cat)
+		{	
+			$cat_id = wp_create_category( $_POST['twm']['category'] );
+			$message .= "<div class='updated'><p>Added category <strong>{$_POST['twm']['category']}</strong> with id <strong>{$cat_id}</strong></p></div>";	
+		}
+		$message .= '<div class="updated"><p><strong>Okido.</strong></p></div>';	
 	}
 
 	echo '<div class="wrap">';
@@ -66,7 +69,7 @@ function twm_test()
 	{
 		if(count($response['results']) > 0)
 		{
-			update_option('twm_since_id', $response['results'][0]['id']);
+			update_option('twm_since_id', $response['results'][0]['id_str']);
 			foreach($response['results'] as $tweet)
 			{
 				var_dump($tweet);
@@ -74,7 +77,7 @@ function twm_test()
 				$post_author = $settings['author_id'];
 				$post_date = strtotime($tweet['created_at']);
 				$post_title = "Tweet van {$tweet['from_user']}";
-				$post_content = "<em><a href='http://twitter.com/{$tweet['from_user']}/status/{$tweet['id']}'>{$tweet['from_user']}</a>:</em> {$tweet_text}";
+				$post_content = "<em><a href='http://twitter.com/{$tweet['from_user']}/status/{$tweet['id_str']}'>{$tweet['from_user']}</a>:</em> {$tweet_text}";
 	//			$post_date = $post_date + 3600; // Uurtje extra, er gaat iets mis met de tijdzone ...
 				$post_date = date('Y-m-d H:i:s', $post_date);
 				$post_status = 'publish';
