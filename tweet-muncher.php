@@ -13,13 +13,17 @@ add_action('twm_hourly_event', 'twm_import_posts');
 
 function twm_activate() {
 	wp_get_current_user();
-	update_option('twm_settings', Array(
-		'category' => 'Tweet',
-		'search' => 'belachelijk',
-		'author_id' => $current_user->ID,
-		)
-	);
-	update_option('twm_since_id', '');
+	$settings = get_option('twm_settings');
+	if(!is_array($settings))
+	{
+		update_option('twm_settings', Array(
+			'category' => 'Tweet',
+			'search' => 'belachelijk',
+			'author_id' => $current_user->ID,
+			)
+		);
+		update_option('twm_since_id', '');
+	}
 	wp_schedule_event(time(), 'hourly', 'twm_hourly_event');
 }
 
