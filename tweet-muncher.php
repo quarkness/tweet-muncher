@@ -3,7 +3,7 @@
  * Plugin Name: Tweet Muncher
  * Plugin URI: https://github.com/quarkness/tweet-muncher
  * Description: Imports certain tweets as posts
- * Version: 0.1
+ * Version: 0.2
  * Author: Ivo van Doesburg
  * Author URI: http://voorgevorderden.com/
  *
@@ -30,11 +30,14 @@ function twm_admin_page()
 	$message = '';	
 
 	$settings = get_option('twm_settings');
+	$since_id = get_option('twm_since_id');
 
 	if ($_POST) {
 		$settings['category'] = $_POST['twm']['category'];
 		$settings['search'] = $_POST['twm']['search'];
+		$settings['author_id'] = $_POST['twm']['author_id'];
 		update_option('twm_settings', $settings);
+		update_option('twm_since_id', $_POST['twm']['since_id']);
 		$cat = get_term_by('name', $settings['category'], 'category');
 		if(false === $cat)
 		{	
@@ -51,6 +54,8 @@ function twm_admin_page()
 	echo "<p>Stel dit even in, wil je.</p>";
 	echo '<p>category: <input type="text" name="twm[category]" size="100" value="' . $settings['category'] . '" />';
 	echo '<p>search: <input type="text" name="twm[search]" size="100" value="' . $settings['search'] . '" />';
+	echo '<p>since_id: <input type="text" name="twm[since_id]" size="100" value="' . $since_id . '" />';
+	echo '<p>author_id: <input type="text" name="twm[author_id]" size="100" value="' . $settings['author_id'] . '" />';
 	echo '<p class="submit"><input class="button-primary" type="submit" method="post" value="Update Options"></p>';
 	echo '</form>';
 	echo '</div>';
