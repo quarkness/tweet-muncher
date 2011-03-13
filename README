@@ -1,0 +1,1 @@
+Tweet Muncher is a WordPress plugin that searches for a search term using the Twitter Search API and imports the results as posts hourly.
